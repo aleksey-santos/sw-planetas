@@ -1,28 +1,66 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1 id="titulo"></h1>
+    <Planeta :planeta="planeta"/>
+    <div id="container-botao">
+      <button @click="planetaAleatorio()">Blow this up</button>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Planeta from './components/Planeta.vue'
+import axios from 'axios';
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    Planeta
+  },
+  data(){
+    return {
+      planeta: null
+    }
+  },
+  methods:{
+    randomIntergetTo(max){
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - 1 + 1)) + 1;
+    },
+    async carregarPlaneta(idPlaneta){
+      try{
+        let resposta = await axios.get(`https://swapi.co/api/planets/${idPlaneta}`);
+        console.log(resposta);
+        if(resposta.data){
+          this.planeta = resposta.data;
+        }
+      }catch(error){
+        console.log(error);
+        alert('Erro ao buscar informações de planeta!');
+      }
+    },
+    async planetaAleatorio(){
+      try{
+        let retorno = await axios.get('https://swapi.co/api/planets');
+        console.log(retorno);
+        let numeroPlanetas = retorno.data.count;
+        let idPlaneta = this.randomIntergetTo(numeroPlanetas);
+        this.carregarPlaneta(idPlaneta)
+      }catch(error){
+        console.log(error);
+        alert('Erro ao acessar api!');
+      }
+    },
+  },
+  created(){
+    this.planetaAleatorio();
+  },
+  componets:{
+    Planeta,
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
